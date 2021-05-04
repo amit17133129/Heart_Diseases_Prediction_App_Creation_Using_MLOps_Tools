@@ -380,9 +380,13 @@ Now we have to edit inside ec2.py file. This file written in python 2 but we are
 ```
 
 ![ec.ini](https://miro.medium.com/max/792/1*uUZTGYviA7sEfaOBqMzD-g.jpeg)
-![ec2.ini](https://miro.medium.com/max/792/1*uUZTGYviA7sEfaOBqMzD-g.jpeg)
-updating `ec2.py` file from python to python3..
+
+![ec2.ini](https://miro.medium.com/max/792/1*TpPvv-HGO2oawgUQahhXKg.jpeg)
+
+Updating `ec2.py` file from python to python3.
+
 ![ec2.py](updating ec2.py file from python to python3..)
+
 Install `boto` and `boto3` libraries so ansible can connect to aws services and launch the respective services. To install `boto` and `boto3` using below command.
 
 ```
@@ -413,11 +417,11 @@ Note: Here, we have given `remote_user=ubuntu` because the master and slaves of 
 
 Now this `ansible.cfg` file will helps us to configure instances on AWS dynamically. `inventory=/myinventory` (it includes ec2.ini and ec2.py) files. `private_key_file` should be the key in `.pem` format of the instances. `host_key_checking=false` will allow to give proper ssh connection. `privilege_escalation` should be concluded in the ansible.cfg file to configure the system using `sudo` power. Your `ansible.cfg` file will look like this below snip.
 <p align="center">
-    <img width="900" height="200" src="https://miro.medium.com/max/792/1*fqM8DO2PImcqZ5LRd_VXaw.jpeg">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*fqM8DO2PImcqZ5LRd_VXaw.jpeg">
 </p>
 Now we are ready to go and configure instanes on aws. use `ansible all --list-hosts` to check the dynamic inventory is working or not.
 <p align="center">
-    <img width="900" height="100" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
+    <img width="900" height="300" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
 </p>
 If you see the ip’s then your instanes are running on aws and it ansible dynamic inventory is successfully connect to aws.
 
@@ -432,7 +436,7 @@ deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stabl
 EOFcurl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
 ```
 <p align="center">
-    <img width="900" height="400" src="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
+    <img width="900" height="300" src="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
 </p>
 Now to configure master you need to go inside `master/tasks/main.yml` file to create tasks for configuration.
 # Configuring master node:
