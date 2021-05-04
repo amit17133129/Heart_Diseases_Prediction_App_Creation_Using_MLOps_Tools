@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>Heart Disease Predictor</title>
+</head>
+<style>
+div {
+  /*border-radius: 5px;*/
+  background-color: #f2f2f2;
+  padding: 190px;
+  background-image: url(https://i.pinimg.com/originals/3e/8c/59/3e8c5974bd4cc79e6aa5afa893ce8b85.jpg);
+ /* filter: blur(2px);
+  -webkit-filter: blur(4px);*/
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+input[type=text], select {
+  width: 40%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  background-color: #f3f6f9;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+
+}
+
+input[type=submit] {
+  width: 15%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+
+}
+.heart1{
+color: white;
+}
+</style>
+<body>
+<center>
+<div>
+        <h1 class="heart1"><center>Heart Disease Predictor</center></h1>
+<form action='/output'  method="GET">
+<input type="text" name='z1' placeholder="Enter your age"/>
+<br />
+<input type="text" name='z2' placeholder="Resting blood pressure(in mm Hg)"/>
+<br />
+<input type="text" name='z3' placeholder="Cholestoral in mg/dl"/>
+<br />
+<input type="text" name='z4' placeholder="Maximum heart rate"/>
+<br />
+<input type="text" name='z5' placeholder="Cardiac stress test"/>
+<br />
+<label>
+    <select>
+      <option value="" >Select Gender</option>
+      <option name='z6' value="">Male</option>
+      <option name='z6' value="">Female</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Chest pain(typical angina) Yes/No</option>
+      <option name='z7' value="">Yes</option>
+      <option name='z7' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Chest pain(atypical angina) Yes/No</option>
+      <option name='z8' value="">Yes</option>
+      <option name='z8' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Chest pain(non-anginal pain) Yes/No</option>
+      <option name='z9' value="">Yes</option>
+      <option name='z9' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">fasting blood sugar(more than 120 mg/dl) Yes/No</option>
+      <option name='z10' value="">Yes</option>
+      <option name='z10' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Resting electrocardiographic(Normal) Yes/No</option>
+      <option name='z11' value="">Yes</option>
+      <option name='z11' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value=""> Resting electrocardiographic(Greater than 0.05mV) Yes/No</option>
+      <option name='z12' value="">Yes</option>
+      <option name='z12' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Exercise induced angina (Yes/No)</option>
+      <option name='z13' value="">Yes</option>
+      <option name='z13' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Upsloping (Yes/No)</option>
+      <option name='z14' value="">Yes</option>
+      <option name='z14' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Flat Sloping (Yes/No)</option>
+      <option name='z15' value="">Yes</option>
+      <option name='z15' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">No. of major vessels is 0 (Yes/No)</option>
+      <option name='z16' value="">Yes</option>
+      <option name='z16' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">No. of major vessels is 1 (Yes/No)</option>
+      <option name='z17' value="">Yes</option>
+      <option name='z17' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">No. of major vessels is 2 (Yes/No)</option>
+      <option name='z18' value="">Yes</option>
+      <option name='z18' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">No. of major vessels is 3 (Yes/No)</option>
+      <option name='z19' value="">Yes</option>
+      <option name='z19' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Thal=3 (Normal) Yes/No</option>
+      <option name='z20' value="">Yes</option>
+      <option name='z20' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Thal=6 (Fixed Defect) Yes/No</option>
+      <option name='z21' value="">Yes</option>
+      <option name='z21' value="">No</option>
+    </select>
+</label>
+<br />
+<label>
+    <select>
+      <option value="">Thal=7 (Reversable defect) Yes/No</option>
+      <option name='z22' value="">Yes</option>
+      <option name='z22' value="">No</option>
+    </select>
+</label>
+<br />
+<input value="Predict" type='submit' />
+<br />
+</form>
+</div>
+</center>
+</body>
+</html>
