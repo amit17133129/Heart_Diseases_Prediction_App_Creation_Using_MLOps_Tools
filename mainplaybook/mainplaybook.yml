@@ -1,0 +1,18 @@
+- hosts: ["tag_Name_K8S_Master_Node"]
+  roles:
+  - name: "Configuring Master Node"
+    role:  "/root/roles/master"
+
+- hosts: ["tag_Name_K8S_Slave1_Node", "tag_Name_K8S_Slave2_Node"]
+  vars_prompt:
+  - name: "master_token"
+    prompt: "Enter Token To Join To Master: "
+    private: no
+  roles:
+  - name: "Configuring Slave Node"
+    role:  "/root/roles/slaves"
+
+- hosts: ["tag_Name_JenkinsNode"]
+  remote_user: "ec2-user"
+  roles:
+  - role: "/root/roles/jenkins"
