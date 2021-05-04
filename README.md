@@ -223,7 +223,7 @@ resource "aws_instance" "DockerNode" {
 }
 ```
 <p align="center">
-  <img width="900" height="200" src="https://miro.medium.com/max/792/1*zepMP7rSkFCScnN_2cYYew.jpeg">
+  <img width="900" height="100" src="https://miro.medium.com/max/792/1*zepMP7rSkFCScnN_2cYYew.jpeg">
 </p>
 instances you can see this video to launch the instances using terraform. https://youtu.be/N4FJayHG0hs
 
@@ -319,20 +319,25 @@ COPY  result.html   /heart_app/templates
 EXPOSE  4444WORKDIR  /heart_app
 CMD export FLASK_APP=app.pyENTRYPOINT flask  run --host=0.0.0.0    --port=4444
 ```
-To build the docker image use below command.  `docker build -t image_name:version    .` You can watch enlow video for reference https://youtu.be/bUBOI-5Ya6U
+To build the docker image use below command.  `docker build -t image_name:version   .` You can watch enlow video for reference https://youtu.be/bUBOI-5Ya6U
 Now we need to configure epel repository so that ansible installation would be easy.
+
 `dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm`
+
 <p align="center">
     <img width="900" height="300" src="https://miro.medium.com/max/792/1*2rFJvM_lRZiSbkFaQFZf7Q.jpeg">
 </p>
+
 Now the above epel has created your repo ready to install ansible. Now you can use `yum install ansible -y` to install ansible.
 
 <p align="center">
     <img width="900" height="300" src= "https://miro.medium.com/max/792/1*A3MqtBYaNnwJPL4FYOhpvQ.jpeg">
 </p>
 As you can see i have launched 6 instances and those are `Ansible Controller node`, `Kubernetes Master`, `Slave1` and `Slave2` nodes, `Jenkins` node and `docker node`.
+
 ## Ansible Controller Node: 
-    In this node we have to install ansible and to use Dynamic Inventory to configure Kubernetes Cluster, jenkins and docker image. We need to write the playbook for the same. For installing ansible you can use this epel release repo .
+In this node we have to install ansible and to use Dynamic Inventory to configure `Kubernetes Cluster`, `jenkins` and `docker image`. We need to write the playbook for the same. For installing ansible you can use this `epel release repo` .
+
 ## Creating playbook for configuring kubernetes cluster:
 Before creating playbooks we have create roles to manage the code properly. So, here i am creating three roles i.e master, slaves and jenkins configuration. you can create roles via below commands:
 ```
@@ -357,6 +362,7 @@ chmod  +x ec2.ini
 <p align="center">
     <img width="900" height="400" src="https://miro.medium.com/max/792/1*-WsGvmv5mIO__cM6seL5mA.jpeg">
 </p>
+
 ```
 You need to give below inputs inside ec2.ini file.
 aws_region='ap-south-1' 
@@ -378,14 +384,17 @@ Now we have to edit inside ec2.py file. This file written in python 2 but we are
 updating `ec2.py` file from python to python3..
 ![ec2.py](updating ec2.py file from python to python3..)
 Install `boto` and `boto3` libraries so ansible can connect to aws services and launch the respective services. To install `boto` and `boto3` using below command.
+
 ```
 pip3 install boto           # installing boto
 pip3 install boto3          # installing boto3
 ```
+
 <p align="center">
     <img width="900" height="400" src="https://miro.medium.com/max/792/1*fqM8DO2PImcqZ5LRd_VXaw.jpeg">
 </p>
 Now we can create configuration file of ansible. Your ansible.cdf file must include below configuration codes.
+
 ```
 [defaults]
 inventory= /my_inventory
