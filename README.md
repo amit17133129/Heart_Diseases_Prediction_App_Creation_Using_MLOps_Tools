@@ -285,3 +285,416 @@ accuracy_score(y_test, y_pred_GB)
 ```
 `GradientBoostingClassifer Accuracy: 0.7868852459016393`
 From the above model creation and comparision `Logistic Regression` is giving much accuracy but i am taking model of `Random Forest` and saving it to `.h5` extension.
+
+<p align="center">
+     <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/2.gif">
+</p>
+
+# Saving RandomForestClassifier Model:
+```
+import joblib
+joblib_file = "RandomForest_Heart_Prediction.h5"
+joblib.dump(lr_model, joblib_file)
+```
+This above code will create a file named `RandomForest_Heart_Prediction.h5` and we have to use this model while create a docker image in which flask we have to install. Below is the code for `dockerfile`. `Code link`→ https://colab.research.google.com/drive/1_PkhVlrW5rC45Ehccxloosl2-gYPcklN?usp=sharing
+
+You can watch below video to for refernce for creating Machine learning model. https://youtu.be/Du9mFr226I4
+Now we need to build the image using below `dockerfile code`.
+```
+FROM centos:latestRUN yum install python3  python3-devel   gcc-c++ -y && \
+    python3 -m pip install --upgrade --force-reinstall pip && \
+    yum install sudo -y && \
+    yum install --assumeyes  python3-pip && \
+    pip install keras && \
+    pip install tensorflow --no-cache-dir  tensorflow && \
+    pip install --upgrade pip tensorflow && \
+    pip3 install flask && \
+    pip3 install joblib && \
+    pip3 install sklearn && \
+    mkdir  /heart_app &&  \
+    mkdir /heart_app/templatesCOPY  Randorm_Forest_Heart_Prediction.h5    /heart_app
+COPY  app.py  /heart_app
+COPY  myform.html  /heart_app/templates
+COPY  result.html   /heart_app/templates
+EXPOSE  4444WORKDIR  /heart_app
+CMD export FLASK_APP=app.pyENTRYPOINT flask  run --host=0.0.0.0    --port=4444
+```
+To build the docker image use below command.  `docker build -t image_name:version    .` You can watch enlow video for reference https://youtu.be/bUBOI-5Ya6U
+Now we need to configure epel repository so that ansible installation would be easy.
+`dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm`
+<p align="center">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*2rFJvM_lRZiSbkFaQFZf7Q.jpeg">
+</p>
+Now the above epel has created your repo ready to install ansible. Now you can use `yum install ansible -y` to install ansible.
+
+<p align="center">
+    <img width="https://miro.medium.com/max/792/1*A3MqtBYaNnwJPL4FYOhpvQ.jpeg">
+</p>
+As you can see i have launched 6 instances and those are `Ansible Controller node`, `Kubernetes Master`, `Slave1` and `Slave2` nodes, `Jenkins` node and `docker node`.
+## Ansible Controller Node: 
+    In this node we have to install ansible and to use Dynamic Inventory to configure Kubernetes Cluster, jenkins and docker image. We need to write the playbook for the same. For installing ansible you can use this epel release repo .
+## Creating playbook for configuring kubernetes cluster:
+Before creating playbooks we have create roles to manage the code properly. So, here i am creating three roles i.e master, slaves and jenkins configuration. you can create roles via below commands:
+```
+ansible-galaxy init master     # master role
+ansible-galaxy init slaves     # slave role
+ansible-galaxy init jenkins    # jenkins role
+```
+<p align="center">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*XgS3ik7RdhcH6Vvb4R5vBg.jpeg">
+</p>
+
+Now create a directory eg. `/myinventory` in Ansible controller node. and you need use dynamic inventory plugins. using `wget` command download the `ec2.py` and `ec2.ini` plugins inside `/myinventory` folder.
+```
+This 👇 command will create a ec2.py dynamic inventory file 
+wget   https://raw.githubusercontent.com/ansible/ansible/stable-2.9/contrib/inventory/ec2.py
+This 👇 command will create a ec2.ini dynamic inventory file
+wget   https://raw.githubusercontent.com/ansible/ansible/stable-2.9/contrib/inventory/ec2.ini
+You need to make executable those two above files
+chmod  +x ec2.py 
+chmod  +x ec2.ini
+```
+<p align="center">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*-WsGvmv5mIO__cM6seL5mA.jpeg">
+</p>
+```
+You need to give below inputs inside ec2.ini file.
+aws_region='ap-south-1' 
+aws_access_key=XXXX
+aws_secret_access_key=XXXX          
+
+After that export all these commands so boto can use this commands freely.
+export AWS_REGION='ap-south-1'
+export AWS_ACCESS_KEY_ID=XXXX
+export AWS_ACCESS_SECRET_KEY=XXXX
+
+Now we have to edit inside ec2.py file. This file written in python 2 but we are using python 3 so we need to edit the header.
+
+#!/usr/bin/python3
+```
+
+![ec.ini](https://miro.medium.com/max/792/1*uUZTGYviA7sEfaOBqMzD-g.jpeg)
+![ec2.ini](https://miro.medium.com/max/792/1*uUZTGYviA7sEfaOBqMzD-g.jpeg)
+updating `ec2.py` file from python to python3..
+![ec2.py](updating ec2.py file from python to python3..)
+Install `boto` and `boto3` libraries so ansible can connect to aws services and launch the respective services. To install `boto` and `boto3` using below command.
+```
+pip3 install boto           # installing boto
+pip3 install boto3          # installing boto3
+```
+<p align="center">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*fqM8DO2PImcqZ5LRd_VXaw.jpeg">
+</p>
+Now we can create configuration file of ansible. Your ansible.cdf file must include below configuration codes.
+```
+[defaults]
+inventory= /my_inventory
+host_key_checking=false
+ask_pass=false
+remote_user=ubuntu
+private_key_file=/root/mykey.pem
+command_warnings=False
+[privilege_escalation]
+become=True
+become_method=sudo
+become_user=root
+become_ask_pass=False
+```
+Note: Here, we have given `remote_user=ubuntu` because the master and slaves of the kuberenetes cluster is launched via ubuntu image. The main reson to use ubuntu image is due to we are using crio as a intermediate `container runtime engine`. Only ubuntu supports the repo for `crio` installation. Therefore we are using `ubuntu image`.
+
+Now this `ansible.cfg` file will helps us to configure instances on AWS dynamically. `inventory=/myinventory` (it includes ec2.ini and ec2.py) files. `private_key_file` should be the key in `.pem` format of the instances. `host_key_checking=false` will allow to give proper ssh connection. `privilege_escalation` should be concluded in the ansible.cfg file to configure the system using `sudo` power. Your `ansible.cfg` file will look like this below snip.
+<p align="center">
+    <img width="900" height="200" src="https://miro.medium.com/max/792/1*fqM8DO2PImcqZ5LRd_VXaw.jpeg">
+</p>
+Now we are ready to go and configure instanes on aws. use `ansible all --list-hosts` to check the dynamic inventory is working or not.
+<p align="center">
+    <img width="900" height="100" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
+</p>
+If you see the ip’s then your instanes are running on aws and it ansible dynamic inventory is successfully connect to aws.
+
+#Configuring Crio repository:
+Now first we have to configure Master node and then slave nodes. To configure crio in ubuntu i have created a script from below codes and saved into `crio.sh` and save in a `/root/` directory.
+```
+OS=xUbuntu_20.04
+VERSION=1.20cat >>/etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list<<EOF
+deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /
+EOFcat >>/etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list<<EOF
+deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /
+EOFcurl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
+```
+<p align="center">
+    <img width="900" height="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
+</p>
+Now to configure master you need to go inside `master/tasks/main.yml` file to create tasks for configuration.
+# Configuring master node:
+```
+# First we have to copy the crio.sh cript to master node and run it to configure crio in master.
+- name: "Copying Script to K8S Master Node"
+  copy:
+     src: "/root/crio.sh"
+     dest: "/root/"
+# Running crio.sh script
+- name: "running script"
+  shell: "bash /root/crio.sh"
+  register: crioscript
+- debug:
+    var: crioscript.stdout_lines# updating packages
+- name: "Updating apt"
+  shell: "apt update"
+  ignore_errors: yes
+  register: yumupdate
+- debug:
+    var: yumupdate.stdout_lines# installing crio
+- name: "Instlling CRIO"
+  shell: "apt install -qq -y cri-o cri-o-runc cri-tools"
+  ignore_errors: yes
+  register: crioinstall
+- debug:
+   var: crioinstall.stdout_lines# reloading daemon
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"# enabling and starting crio 
+- name: "enabling CRIO"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes
+  register: criostart
+- debug:
+   var: criostart.stdout_lines# Configuring repo for Kubeadm Installing Kubeadm 
+- name: "Installing KubeAdm"
+  shell: |
+   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+   apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+   apt install -qq -y kubeadm=1.20.5-00 kubelet=1.20.5-00 kubectl=1.20.5-00
+  ignore_errors: yes
+  register: kubeadminstall
+- debug:
+   var: kubeadminstall.stdout_lines# Creating a overlay network
+- name: "Adding Overlay Network"
+  shell: |
+   cat >>/etc/modules-load.d/crio.conf<<EOF
+   overlay
+   br_netfilter
+   EOF
+  ignore_errors: yes
+  register: overlay# adding filters to overlay network 
+- name: "Creating Overlay and Netfilter"
+  shell: "modprobe overlay"
+- shell: "modprobe br_netfilter"
+  ignore_errors: yes# enabling iptables by changing values to 1
+- name: "Chnaging Iptables values to 1"
+  shell: |
+   cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+   net.bridge.bridge-nf-call-ip6tables = 1
+   net.bridge.bridge-nf-call-iptables  = 1
+   net.ipv4.ip_forward                 = 1
+   EOF
+  ignore_errors: yes# running sysctl --system
+- name: "Running sysctl --system"
+  shell: "sysctl --system"
+  register: sysctl
+- debug:
+     var: sysctl.stdout_lines# changing cgroup drivers to pod
+- name: "Chnaging group drivers"
+  shell: |
+   cat >>/etc/crio/crio.conf.d/02-cgroup-manager.conf<<EOF
+   [crio.runtime]
+   conmon_cgroup = "pod"
+   cgroup_manager = "cgroupfs"
+   EOF# reloading daemon
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"
+  ignore_errors: yes# enabling crio
+- name: "enabling crio"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes# restarting crio
+- name: "Restarting CRIO"
+  shell: "systemctl restart crio"
+  ignore_errors: yes# changing fstab and disabling firewall
+- name: "Changing Fstab and disable ufw"
+  shell: |
+     sed -i '/swap/d' /etc/fstab
+     swapoff -a
+     systemctl disable --now ufw
+  ignore_errors: yes# Restarting kubelet
+- name: "restarting kubelet"
+  shell: "systemctl restart kubelet"# initializing master node with cidr 192.168.0.0/16
+- name: "Initilaizing Master"
+  shell: "kubeadm init --apiserver-advertise-address=192.168.1.86  --pod-network-cidr=192.168.0.0/16    --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem"
+  ignore_errors: yes
+  register: master
+- debug:
+   var: master.stdout_lines- name: "Creating .kube directory"
+  shell: "mkdir -p $HOME/.kube"- name: "Copying /etc/kubernetes/admin.conf $HOME/.kube/config"
+  shell: "sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config"- name: "changing owner permission"
+  shell: "sudo chown $(id -u):$(id -g) $HOME/.kube/config"# creating calico overlay network to create a connection between the master and slave nodes
+- name: "Using Calico as Overlay Network"
+  shell: "kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml"
+  ignore_errors: yes
+  register: callico
+- debug:
+    var: callico.stdout_lines# generating token
+- name: "Printing token"
+  shell: "kubeadm token create --print-join-command"
+  register: token- debug:
+    var: token.stdout_lines
+```
+
+# Configuring slave nodes:
+```
+# First we have to copy the crio.sh cript to master node and run it to configure crio in slaves.
+- name: "Copying Script to K8S Master Node"
+  copy:
+     src: "/root/crio.sh"
+     dest: "/root/"# running crio.sh script
+- name: "running script"
+  shell: "bash /root/crio.sh"
+  register: crioscript
+- debug:
+    var: crioscript.stdout_lines# updating packages
+- name: "Updating apt"
+  shell: "apt update"
+  ignore_errors: yes
+  register: yumupdate
+- debug:
+    var: yumupdate.stdout_lines# Installing Crio
+- name: "Instlling CRIO"
+  shell: "apt install -qq -y cri-o cri-o-runc cri-tools"
+  ignore_errors: yes
+  register: crioinstall- debug:
+   var: crioinstall.stdout_lines# Reloading Deamon
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"# enabling crio
+- name: "enabling CRIO"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes
+  register: criostart
+- debug:
+   var: criostart.stdout_lines# installing and configuring repo for kubeadm
+- name: "Installing KubeAdm"
+  shell: |
+   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+   apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+   apt install -qq -y kubeadm=1.20.5-00 kubelet=1.20.5-00 kubectl=1.20.5-00
+  ignore_errors: yes
+  register: kubeadminstall
+- debug:
+   var: kubeadminstall.stdout_lines# creating overlay network
+- name: "Adding Overlay Network"
+  shell: |
+   cat >>/etc/modules-load.d/crio.conf<<EOF
+   overlay
+   br_netfilter
+   EOF
+  ignore_errors: yes
+  register: overlay# adding filters to overlay network
+- name: "Creating Overlay and Netfilter"
+  shell: "modprobe overlay"
+- shell: "modprobe br_netfilter"
+  ignore_errors: yes# enabling iptables by changing values to 1
+- name: "Chnaging Iptables values to 1"
+  shell: |
+   cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+   net.bridge.bridge-nf-call-ip6tables = 1
+   net.bridge.bridge-nf-call-iptables  = 1
+   net.ipv4.ip_forward                 = 1
+   EOF
+  ignore_errors: yes# running sysctl --system
+- name: "Running sysctl --system"
+  shell: "sysctl --system"
+  register: sysctl
+- debug:
+     var: sysctl.stdout_lines# changing cgroup drivers to pod
+- name: "Changing group drivers"
+  shell: |
+   cat >>/etc/crio/crio.conf.d/02-cgroup-manager.conf<<EOF
+   [crio.runtime]
+   conmon_cgroup = "pod"
+   cgroup_manager = "cgroupfs"
+   EOF# pulling images using kubeadm
+- name: "Pulling Images using KubeAdm"
+  shell: "kubeadm config  images pull"
+  changed_when: false
+  register: kubeadm
+- debug:
+    var: kubeadm.stdout_lines# reloading daemon
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"
+  ignore_errors: yes# enabling crio
+- name: "enabling crio"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes# restarting crio
+- name: "Restarting CRIO"
+  shell: "systemctl restart crio"
+  ignore_errors: yes# changing fstab and disabling firewall
+- name: "Changing Fstab and disable ufw"
+  shell: |
+     sed -i '/swap/d' /etc/fstab
+     swapoff -a
+     systemctl disable --now ufw
+  ignore_errors: yes# Restarting kubelet
+- name: "restarting kubelet"
+  shell: "systemctl restart kubelet"# Joining Slaves with token
+- name: "Joining Slaves to Master Node"
+  shell: "{{ master_token  }}"
+  ignore_errors: yes
+  register: init
+- debug:
+    var: init.stdout_lines  
+```
+# Configuring Jenkins Node::
+```
+---
+# tasks file for jenkins# copying jdk file in jenkins node 
+- name: "Copying Jdk file to jenkins Node"
+  copy:
+    src: "/root/jdk-8u281-linux-x64.rpm"
+    dest: "/root/"
+  ignore_errors: yes# copying jenkins file to jenkins node
+- name: "Copying Jenkins file to jenkins Node"
+  copy:
+    src: "/root/jenkins-2.282-1.1.noarch.rpm"
+    dest: "/root/"
+  ignore_errors: yes# Installing JDK
+- name: "Installing JDK"
+  shell: "rpm -ivh /root/jdk-8u281-linux-x64.rpm"
+  ignore_errors: yes
+  register: jdk
+- debug:
+     var: jdk.stdout_lines# Installing Jenkins
+- name: "Installing Jenkins"
+  shell: "rpm -ivh /root/jenkins-2.282-1.1.noarch.rpm"
+  ignore_errors: yes
+  register: jenkins
+- debug:
+     var: jenkins.stdout_lines# Staring jenkins
+- name: "Starting Jenkins Server"
+  shell: "systemctl start jenkins"# enabling jenkins
+- name: "enabling Jenkins Server"
+  shell: "systemctl enable jenkins"
+```
+Now the `mainplaybook` will contains the roles of `master`, `slaves` and `jenkins` respectively.
+# Main Playbook:
+```
+# Configuring master node
+- hosts: ["tag_Name_K8S_Master_Node"]
+  roles:
+  - name: "Configuring Master Node"
+    role:  "/root/roles/master"# Configuring slaves node
+- hosts: ["tag_Name_K8S_Slave1_Node", "tag_Name_K8S_Slave2_Node"]
+  vars_prompt:
+  - name: "master_token"
+    prompt: "Enter Token To Join To Master: "
+    private: no
+  roles:
+  - name: "Configuring Slave Node"
+    role:  "/root/roles/slaves"# Configuring jenkins node
+- hosts: ["tag_Name_JenkinsNode"]
+  remote_user: "ec2-user"
+  roles:
+  - role: "/root/roles/jenkins"
+```
+# Running Main Playbook:
+
+You can run the `mainplaybook.yml` using `ansible-playbook mainplaybook.yml`
+
+
+You can check this video for the complete configuration process. https://youtu.be/xTBN1ArNbP8
