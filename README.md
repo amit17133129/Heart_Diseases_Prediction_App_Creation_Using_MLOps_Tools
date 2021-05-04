@@ -423,7 +423,7 @@ deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stabl
 EOFcurl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
 ```
 <p align="center">
-    <img width="900" height="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
 </p>
 Now to configure master you need to go inside `master/tasks/main.yml` file to create tasks for configuration.
 # Configuring master node:
@@ -693,6 +693,18 @@ Now the `mainplaybook` will contains the roles of `master`, `slaves` and `jenkin
   - role: "/root/roles/jenkins"
 ```
 # Running Main Playbook:
+
+<p align="center">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/3.gif">
+</p>
+
+<p align="center">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/3.gif">
+</p>
+
+<p align="center">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/5.gif">
+</p>
 
 You can run the `mainplaybook.yml` using `ansible-playbook mainplaybook.yml`
 
