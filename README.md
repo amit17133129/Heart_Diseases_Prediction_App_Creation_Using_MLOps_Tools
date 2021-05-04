@@ -781,3 +781,18 @@ pipeline {
 </p>
 
 Now we need to copy the url of repository and you have to create a new job with `multibranch pipeline` and you need to to add source “git” and paste the url and save the job.
+
+<p align="center">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/8.gif">
+</p>
+Now you have to just and it will create two `jobs` one for `main branch` and another for `developer branch`. As soon as the developer branch succeed it will create a deployment in the `Kubernetes cluster` and behind the scene it will launch pod and it also expose that `deployment` so any client can access the page.
+
+<p align="center">
+    <img width="900" height="400" src="">
+</p>
+
+Now you can access the webapp with the public ip of the slave node and with the exposed port.
+
+<p align="center">
+    <img width="900" height="400" src="">
+</p>
