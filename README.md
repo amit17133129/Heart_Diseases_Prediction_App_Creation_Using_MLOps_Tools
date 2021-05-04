@@ -741,3 +741,12 @@ Now copy the password and pate in the `Administrator password` section and then 
 </p>
 
 After that you need to create a password because this password is too long and hard to remember. So below are the steps shown in the video to create the password and to install the restive plugins. Ensure that you have to install below plugins. watch this video for reference https://youtu.be/1spUYaUKaao
+
+Plugins from below lists needed to be installed:
+
+   1. `ssh`: ssh plugins need to install for connecting the kubernetes servers.
+   2. `Gihub`: Github plugins need to install to us *SCM services*.
+   3. `Pipeline`: Pipline plugin will helps you to automate the jobs and make your setup easy.
+   4. `Multibranch pipeline`: Multibranch pipeline plugin will helps you to pulls the code from different branches. In this project i have created two branch i.e main(default) and developer branch. The code should be in both the branch in `Jenkinsfile` named file. So multibranch will scan the repository and both the branches and will pull the code and create jobs with names “*main*” job and “*developer*” job. If developer branch job run successfully then and if main branch wants to commit then they can.
+
+Now you have to create a repository in github and add the pipeline code in that repo inside `Jenkinsfile`.
