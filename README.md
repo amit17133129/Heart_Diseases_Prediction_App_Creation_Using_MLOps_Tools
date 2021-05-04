@@ -23,3 +23,265 @@ The terraform apply command is used to apply the changes required to reach the d
   <img width="900" height="200" src="https://miro.medium.com/max/792/1*SWaEzkz6U1MjNTLQWkZcLg.png">
 </p>
 
+<p align="center">
+  <img width="900" height="500" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/1.gif">
+</p>
+```
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "XXXXXXXXXXXXXXXXXXXX"
+  secret_key = "XXXXXXXXXXXXXXXXXXXX"
+  profile    = "Amit"
+}
+```
+The terraform code will be starting by taking the user name which you have created in your AWS account. You need to give the region also in the provider block. `provier → aws` (else your cloud name). You also need to provide `access key` and `secret key` of your user.
+# Creating Variables:
+```
+variable "cidr_vpc" {
+  description = "CIDR block for the VPC"
+  default = "192.168.0.0/16"
+}variable "cidr_subnet1" {
+  description = "CIDR block for the subnet"
+  default = "192.168.1.0/24"
+}variable "availability_zone" {
+  description = "availability zone to create subnet"
+  default = "ap-south-1"
+}
+variable "environment_tag" {
+  description = "Environment tag"
+  default = "Production"}
+```
+
+Above i have created variable with the name `cidr_vpc`, `cidr_subnet1`, `availability_zone`, `environment_tag`. The terraform code will be starting by taking the user name which you have created in your AWS account. You need to give the region also in the provider block. `provier → aws` (else your cloud name). You also need to provide `access key` and `secret key` of your user.
+
+# Creating VPC:
+Amazon Virtual Private Cloud (*Amazon VPC*) enables you to launch AWS resources into a virtual network that you’ve defined. This virtual network closely resembles a traditional network that you’d operate in your own data center, with the benefits of using the scalable infrastructure of AWS.
+```
+resource "aws_vpc" "vpc" {
+  cidr_block = "${var.cidr_vpc}"
+  enable_dns_support   = true
+  enable_dns_hostnames = truetags ={
+    Environment = "${var.environment_tag}"
+    Name= "TerraformVpc"
+  }
+}
+```
+The above code will create VPC. The above vpc block accept the `cidr_block`. you can enable dns support given to ec2 instances after launching. You can give the tag name to the above vpc. Here i have given “*TerraformVpc*”.
+![vpc](https://miro.medium.com/max/792/1*kOQ27W71o7OH6Y5Kye4FFw.jpeg)
+
+# Creating Subnets:
+Subnetwork or subnet is a logical subdivision of an IP network. The practice of dividing a network into two or more networks is called subnetting. AWS provides two types of subnetting one is Public which allow the internet to access the machine and another is private which is hidden from the internet.
+
+```
+resource "aws_subnet" "subnet_public1_Lab1" {
+  vpc_id = "${aws_vpc.vpc.id}"
+  cidr_block = "${var.cidr_subnet1}"
+  map_public_ip_on_launch = "true"
+  availability_zone = "ap-south-1a"
+  tags ={
+    Environment = "${var.environment_tag}"
+    Name= "TerraformPublicSubnetLab1"
+    }
+  }
+  ```
+  
+The above code will create subnet. The subnet block accepts `vpc_id`, `cidr_block`, `map_public_ip_on_launch`(assign public IP to instance after launching), availability_zone. You can give tags for easy recognition after creating subnets.
+![subnets](https://miro.medium.com/max/792/1*QjWFMA0onG5q30RxUKH16w.jpeg)
+  
+# Creating Security Group
+
+A security group acts as a virtual firewall for your EC2 instances to control incoming and outgoing traffic. If you don’t specify a security group, Amazon EC2 uses the default security group. You can add rules to each security group that allow traffic to or from its associated instances.
+```
+resource "aws_security_group" "TerraformSG" {
+  name = "TerraformSG"
+  vpc_id = "${aws_vpc.vpc.id}"
+  ingress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags ={
+    Environment = "${var.environment_tag}"
+    Name= "TerraformSG"
+  }
+}
+```
+The above block of code will create a security group. It accepts the respective parameters name(name of the security group), `vpc_id`, `ingress`(inbound rule) here i have given “*all traffic*”. “-1” means all. *from_port= 0* *to_port=0* (0.0.0.0) that means we have disabled the firewall. you need to mention the range of IP’s you want have in inbound rule.
+The egress rule is the outbound rule. I have taken (0.0.0.0/0) means all traffic i can able to access from this outbound rule. You can give the name of respective Security Group.
+![sg](https://miro.medium.com/max/792/1*xt_vYNZogjGT3_4cd_wtDQ.jpeg)
+# Creating InternetGateway:
+An internet gateway serves two purposes: to provide a target in your VPC route tables for internet-routable traffic, and to perform network address translation (NAT) for instances that have been assigned public IPv4 addresses.
+```
+resource "aws_internet_gateway" "gw" {
+  vpc_id = "${aws_vpc.vpc.id}"
+tags = {
+    Name = "Terraform_IG"
+  }
+}
+```
+the above code will create you respective internet gateway. you need to specify on which vpc you want to create internet gateway. Also you can give name using tag block.
+![ig](https://miro.medium.com/max/792/1*0r67Qq1XzZjLfOST5GEsjQ.jpeg)
+# Creating Route Table:
+A route table contains a set of rules, called routes, that are used to determine where network traffic from your subnet or gateway is directed.
+```
+resource "aws_route_table" "r" {
+  vpc_id = "${aws_vpc.vpc.id}"
+route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+  tags = {
+    Name = "TerraformRoteTable"
+  }
+}
+```
+You need to create a route table for the internet gateway you have created above. Here, i am allowing all the IP rage. So my ec2 instances can connect to the internet world. we need to give the vpc_id so that we can easily allocate the routing table to respective vpc. You can specify the name of the routing table using tag block.
+![rt](https://miro.medium.com/max/792/1*6Fxfdop0OVHCcZiydegeSg.jpeg)
+
+# Route Table Association To Subnets
+We need to connect the route table created for internet gateways to the respective subnets inside the vpc.
+```
+resource "aws_route_table_association" "public" {
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  route_table_id = "${aws_route_table.r.id}"
+}
+```
+You need to specify which subnets you want to take to the public world. As if the subnets gets associated(connected) to the  `Internet Gateway` it will be a public subnet. But if you don’t associate subnets to the Internet gateway routing table then it will known as private subnets. The instances which is launched in the private subnet is not able to connected from outside as it will not having public IP, also it will not be connected to the Internet Gateway.
+You need to specify the routing table for the association of the subnets. If you don’t specify the routing table in the above association block then subnet will take the vpc’s route table. So if you want to take the ec2 instances to the public world then you need to specify the router in the above association block. Its upon you which IP range you want you ec2 instances to connect. Here i have give 0.0.0.0/0 means i can access any thing from the ec2 instances.
+
+# Creating Ec2 Instances:
+
+An EC2 instance is nothing but a virtual server in Amazon Web services terminology. It stands for Elastic Compute Cloud. It is a web service where an AWS subscriber can request and provision a compute server in AWS cloud. … AWS provides multiple instance types for the respective business needs of the user.
+```
+resource "aws_instance" "Ansible_Controller_Node" {
+  ami           = "ami-0a9d27a9f4f5c0efc"
+  instance_type = "t2.micro"
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  vpc_security_group_ids = ["${aws_security_group.TerraformSG.id}"]
+  key_name = "007ab"
+ tags ={
+    Environment = "${var.environment_tag}"
+    Name= "Ansible_Controller_Node"
+  }}
+resource "aws_instance" "K8S_Master_Node" {
+  ami           = "ami-0d758c1134823146a"
+  instance_type = "t2.micro"
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  vpc_security_group_ids = ["${aws_security_group.TerraformSG.id}"]
+  key_name = "007ab"
+ tags ={
+    Environment = "${var.environment_tag}"
+    Name= "K8S_Master_Node"
+  }}
+resource "aws_instance" "K8S_Slave1_Node" {
+  ami           = "ami-0d758c1134823146a"
+  instance_type = "t2.micro"
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  vpc_security_group_ids = ["${aws_security_group.TerraformSG.id}"]
+  key_name = "007ab"
+ tags ={
+    Environment = "${var.environment_tag}"
+    Name= "K8S_Slave1_Node"
+  }}
+resource "aws_instance" "K8S_Slave2_Node" {
+  ami           = "ami-0d758c1134823146a"
+  instance_type = "t2.micro"
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  vpc_security_group_ids = ["${aws_security_group.TerraformSG.id}"]
+  key_name = "007ab"
+ tags ={
+    Environment = "${var.environment_tag}"
+    Name= "K8S_Slave2_Node"
+  }}
+resource "aws_instance" "JenkinsNode" {
+  ami           = "ami-0a9d27a9f4f5c0efc"
+  instance_type = "t2.micro"
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  vpc_security_group_ids = ["${aws_security_group.TerraformSG.id}"]
+  key_name = "007ab"
+ tags ={
+    Environment = "${var.environment_tag}"
+    Name= "JenkinsNode"
+  }}
+resource "aws_instance" "DockerNode" {
+  ami           = "ami-0a9d27a9f4f5c0efc"
+  instance_type = "t2.micro"
+  subnet_id = "${aws_subnet.subnet_public1_Lab1.id}"
+  vpc_security_group_ids = ["${aws_security_group.TerraformSG.id}"]
+  key_name = "007ab"
+ tags ={
+    Environment = "${var.environment_tag}"
+    Name= "DockerNode"
+  }
+}
+```
+<p align="center">
+  <img width="900" height="200" src="https://miro.medium.com/max/792/1*zepMP7rSkFCScnN_2cYYew.jpeg">
+</p>
+instances you can see this video to launch the instances using terraform. https://youtu.be/N4FJayHG0hs
+
+# Creating Machine learning Model:
+
+Here now, we have to create a machine learning model. As the dataset is of classification problem then we have to choose classification algorithms. Here i trained the model with `Logistic Regression`, `RandomForestClassifier`, `DecisionTree Classsifier`, `GradientBoostingClassifier`.
+# Logistic Regression:
+```
+from sklearn.linear_model import LogisticRegression
+lr_model=LogisticRegression()
+lr_model.fit(X_train, y_train)
+lr_y_model= lr_model.predict(X_test)
+lr_y_model
+from sklearn.metrics import accuracy_score
+print("Logistic Regression Accuracy: ", accuracy_score(y_test, lr_y_model))
+```
+
+```
+Logistic Regression Accuracy:  0.9180327868852459/opt/conda/lib/python3.7/site-packages/sklearn/linear_model/_logistic.py:765: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  extra_warning_msg=_LOGISTIC_SOLVER_CONVERGENCE_MSG)
+```
+# RandomForestClassifier:
+```
+from sklearn.ensemble import RandomForestClassifier
+rfc_model = RandomForestClassifier(n_estimators=10000, max_depth=100)
+rfc_model
+rfc_model.fit(X_train, y_train)
+rfc_y_pred = rfc_model.predict(X_test)
+rfc_y_pred
+from sklearn.metrics import accuracy_score
+print("Random Forest Accuracy: ", accuracy_score(y_test, rfc_y_pred))
+```
+`Random Forest Accuracy: 0.7704918032786885`
+# DecisionTreeClasssifier:
+```
+from sklearn.tree import DecisionTreeClassifier
+dt_model = DecisionTreeClassifier()
+dt_model.fit(X_train, y_train)
+dt_y_pred=dt_model.predict(X_test)dt_y_pred
+from sklearn.metrics import accuracy_score
+print("Decision Tree Accuracy: ", accuracy_score(y_test, dt_y_pred))
+```
+`Decision Tree Accuracy: 0.6721311475409836`
+# GradientBoostingClassifier:
+```
+from sklearn.ensemble import GradientBoostingClassifier
+GB_model = GradientBoostingClassifier(n_estimators=1000)
+GB_model.fit(X_train, y_train)
+y_pred_GB = GB_model.predict(X_test)
+y_pred_GB
+from sklearn.metrics import accuracy_score
+accuracy_score(y_test, y_pred_GB)
+```
+`GradientBoostingClassifer Accuracy: 0.7868852459016393`
+From the above model creation and comparision `Logistic Regression` is giving much accuracy but i am taking model of `Random Forest` and saving it to `.h5` extension.
