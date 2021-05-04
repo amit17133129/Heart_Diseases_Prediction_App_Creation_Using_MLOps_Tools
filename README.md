@@ -727,7 +727,7 @@ You can check this video for the complete configuration process. https://youtu.b
 Now login to jenkins jenkins node using `public_ip:8080`. We need to set the password for jenkins node intially. This process needed to be done only once. You will be landed on this page and it will ask for password.
 
 <p align="center">
-    <img width="900" height="400" src="https://miro.medium.com/max/792/1*nYJPAJAXfkeOKUvNuzRUCQ.jpeg">
+    <img width="900" height="300" src="https://miro.medium.com/max/792/1*nYJPAJAXfkeOKUvNuzRUCQ.jpeg">
 </p>
 
 copy the `/var/lib/jenkins/secrets/initialAdminPassword` the location and using cat command you can take the passowrd like this in the below image.
@@ -737,11 +737,7 @@ copy the `/var/lib/jenkins/secrets/initialAdminPassword` the location and using 
 Now copy the password and pate in the `Administrator password` section and then click on `continue`.
 
 <p align="center">
-    <img width="900" height="400" src="https://miro.medium.com/max/792/1*QZ_QH2s8_RTRYae68Y8QpQ.jpeg">
+    <img width="900" height="300" src="https://miro.medium.com/max/792/1*QZ_QH2s8_RTRYae68Y8QpQ.jpeg">
 </p>
 
-After that you need to create a password because this password is too long and hard to remember. So below are the steps shown in the video to create the password and to install the restive plugins. Ensure that you have to install below plugins.
-
-<p align="center">
-    <img width="900" height="400" src="">
-</p>
+After that you need to create a password because this password is too long and hard to remember. So below are the steps shown in the video to create the password and to install the restive plugins. Ensure that you have to install below plugins. watch this video for reference https://youtu.be/1spUYaUKaao
