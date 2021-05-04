@@ -325,13 +325,13 @@ Now we need to configure epel repository so that ansible installation would be e
 `dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm`
 
 <p align="center">
-    <img width="900" height="300" src="https://miro.medium.com/max/792/1*2rFJvM_lRZiSbkFaQFZf7Q.jpeg">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*2rFJvM_lRZiSbkFaQFZf7Q.jpeg">
 </p>
 
 Now the above epel has created your repo ready to install ansible. Now you can use `yum install ansible -y` to install ansible.
 
 <p align="center">
-    <img width="900" height="300" src= "https://miro.medium.com/max/792/1*A3MqtBYaNnwJPL4FYOhpvQ.jpeg">
+    <img width="900" height="400" src= "https://miro.medium.com/max/792/1*A3MqtBYaNnwJPL4FYOhpvQ.jpeg">
 </p>
 As you can see i have launched 6 instances and those are `Ansible Controller node`, `Kubernetes Master`, `Slave1` and `Slave2` nodes, `Jenkins` node and `docker node`.
 
@@ -421,7 +421,7 @@ Now this `ansible.cfg` file will helps us to configure instances on AWS dynamica
 </p>
 Now we are ready to go and configure instanes on aws. use `ansible all --list-hosts` to check the dynamic inventory is working or not.
 <p align="center">
-    <img width="900" height="300" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
 </p>
 If you see the ip’s then your instanes are running on aws and it ansible dynamic inventory is successfully connect to aws.
 
@@ -436,7 +436,7 @@ deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stabl
 EOFcurl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$VERSION/$OS/Release.key | apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
 ```
 <p align="center">
-    <img width="900" height="300" src="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*tZ9xk5Um7RLUElqwAjLzzg.jpeg">
 </p>
 Now to configure master you need to go inside `master/tasks/main.yml` file to create tasks for configuration.
 # Configuring master node:
