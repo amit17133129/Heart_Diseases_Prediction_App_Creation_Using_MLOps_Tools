@@ -1,0 +1,30 @@
+---
+# tasks file for jenkins
+- name: "Copying Jdk file to jenkins Node"
+  copy:
+    src: "/root/jdk-8u281-linux-x64.rpm"
+    dest: "/root/"
+  ignore_errors: yes
+
+- name: "Copying Jenkins file to jenkins Node"
+  copy:
+    src: "/root/jenkins-2.282-1.1.noarch.rpm"
+    dest: "/root/"
+  ignore_errors: yes
+
+- name: "Installing JDK"
+  shell: "rpm -ivh /root/jdk-8u281-linux-x64.rpm"
+  ignore_errors: yes
+  register: jdk
+- debug:
+     var: jdk.stdout_lines
+
+- name: "Installing Jenkins"
+  shell: "rpm -ivh /root/jenkins-2.282-1.1.noarch.rpm"
+  ignore_errors: yes
+  register: jenkins
+- debug:
+     var: jenkins.stdout_lines
+
+- name: "Starting Jenkins Server"
+  shell: "systemctl start jenkins"
