@@ -794,5 +794,6 @@ Now you have to just and it will create two `jobs` one for `main branch` and ano
 Now you can access the webapp with the public ip of the slave node and with the exposed port.
 
 <p align="center">
-    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/9.gif">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/10.gif">
 </p>
+You can get the content of the entire project in this below video. https://youtu.be/N59MyQNdqK4
