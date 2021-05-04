@@ -421,7 +421,7 @@ Now this `ansible.cfg` file will helps us to configure instances on AWS dynamica
 </p>
 Now we are ready to go and configure instanes on aws. use `ansible all --list-hosts` to check the dynamic inventory is working or not.
 <p align="center">
-    <img width="900" height="400" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
+    <img width="900" height="100" src="https://miro.medium.com/max/792/1*A9nxto6shUV3WWm9BRYJRA.jpeg">
 </p>
 If you see the ip’s then your instanes are running on aws and it ansible dynamic inventory is successfully connect to aws.
 
