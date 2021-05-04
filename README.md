@@ -672,6 +672,7 @@ Now to configure master you need to go inside `master/tasks/main.yml` file to cr
   shell: "systemctl enable jenkins"
 ```
 Now the `mainplaybook` will contains the roles of `master`, `slaves` and `jenkins` respectively.
+
 # Main Playbook:
 ```
 # Configuring master node
