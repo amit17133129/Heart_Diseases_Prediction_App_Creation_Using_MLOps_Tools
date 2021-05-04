@@ -750,3 +750,34 @@ Plugins from below lists needed to be installed:
    4. `Multibranch pipeline`: Multibranch pipeline plugin will helps you to pulls the code from different branches. In this project i have created two branch i.e main(default) and developer branch. The code should be in both the branch in `Jenkinsfile` named file. So multibranch will scan the repository and both the branches and will pull the code and create jobs with names “*main*” job and “*developer*” job. If developer branch job run successfully then and if main branch wants to commit then they can.
 
 Now you have to create a repository in github and add the pipeline code in that repo inside `Jenkinsfile`.
+
+
+<p align="center">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/7.gif">
+</p>
+
+```
+pipeline {     
+    agent any      
+       stages { 
+         stage('BuildingHeartPrectionPod'){   
+           steps {                   
+           sh 'sudo kubectl create deployment mlopsheartpred  --image=docker123kubernetes123/heartprediction_mlops:v1   --kubeconfig /root/admin.conf'
+           sh 'sudo kubectl expose deployment mlopsheartpred --type=NodePort  --port=4444   --kubeconfig /root/admin.conf'                          
+           sh 'sudo kubectl get pod -o wide   --kubeconfig /root/admin.conf'                                
+    }       
+ }         
+       stage('gettingpod'){   
+           steps {                     
+              sh 'sudo kubectl get pod -o wide  --kubeconfig /root/admin.conf'                  
+              sh 'sudo kubectl get svc    --kubeconfig /root/admin.conf'           
+          } 
+       }   
+ }
+}
+```
+<p align="center">
+    <img width="900" height="400" src="https://miro.medium.com/max/792/1*KFL_5ydL407-37FnyeM-YQ.jpeg">
+</p>
+
+Now we need to copy the url of repository and you have to create a new job with `multibranch pipeline` and you need to to add source “git” and paste the url and save the job.
