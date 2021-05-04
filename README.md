@@ -346,7 +346,7 @@ ansible-galaxy init slaves     # slave role
 ansible-galaxy init jenkins    # jenkins role
 ```
 <p align="center">
-    <img width="900" height="400" src="https://miro.medium.com/max/792/1*XgS3ik7RdhcH6Vvb4R5vBg.jpeg">
+    <img width="900" height="350" src="https://miro.medium.com/max/792/1*XgS3ik7RdhcH6Vvb4R5vBg.jpeg">
 </p>
 
 Now create a directory eg. `/myinventory` in Ansible controller node. and you need use dynamic inventory plugins. using `wget` command download the `ec2.py` and `ec2.ini` plugins inside `/myinventory` folder.
