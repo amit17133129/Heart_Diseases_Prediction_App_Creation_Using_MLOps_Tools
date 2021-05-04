@@ -713,7 +713,7 @@ Now the `mainplaybook` will contains the roles of `master`, `slaves` and `jenkin
 </p>
 
 <p align="center">
-    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/3.gif">
+    <img width="900" height="400" src="https://raw.githubusercontent.com/amit17133129/Heart_Diseases_Prediction_App_Creation_Using_MLOps_Tools/main/Images/4.gif">
 </p>
 
 <p align="center">
