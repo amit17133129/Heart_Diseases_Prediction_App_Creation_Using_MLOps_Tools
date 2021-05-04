@@ -412,7 +412,7 @@ Now we are ready to go and configure instanes on aws. use `ansible all --list-ho
 </p>
 If you see the ip’s then your instanes are running on aws and it ansible dynamic inventory is successfully connect to aws.
 
-#Configuring Crio repository:
+# Configuring Crio repository:
 Now first we have to configure Master node and then slave nodes. To configure crio in ubuntu i have created a script from below codes and saved into `crio.sh` and save in a `/root/` directory.
 ```
 OS=xUbuntu_20.04
