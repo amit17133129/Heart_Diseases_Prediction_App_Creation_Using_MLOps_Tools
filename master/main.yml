@@ -1,0 +1,251 @@
+- name: "Copying Script to K8S Master Node"
+  copy:
+     src: "/root/crio.sh"
+     dest: "/root/"
+- name: "running script"
+  shell: "bash /root/crio.sh"
+  register: crioscript
+- debug:
+    var: crioscript.stdout_lines
+
+- name: "Updating apt"
+  shell: "apt update"
+  ignore_errors: yes
+  register: yumupdate
+- debug:
+    var: yumupdate.stdout_lines
+
+- name: "Instlling CRIO"
+  shell: "apt install -qq -y cri-o cri-o-runc cri-tools"
+  ignore_errors: yes
+  register: crioinstall
+
+- debug:
+   var: crioinstall.stdout_lines
+
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"
+
+- name: "enabling CRIO"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes
+  register: criostart
+- debug:
+   var: criostart.stdout_lines
+
+- name: "Installing KubeAdm"
+  shell: |
+   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+   apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+   apt install -qq -y kubeadm=1.20.5-00 kubelet=1.20.5-00 kubectl=1.20.5-00
+  ignore_errors: yes
+  register: kubeadminstall
+- debug:
+   var: kubeadminstall.stdout_lines
+
+- name: "Adding Overlay Network"
+  shell: |
+   cat >>/etc/modules-load.d/crio.conf<<EOF
+   overlay
+   br_netfilter
+   EOF
+  ignore_errors: yes
+  register: overlay
+
+- name: "Creating Overlay and Netfilter"
+  shell: "modprobe overlay"
+- shell: "modprobe br_netfilter"
+  ignore_errors: yes
+
+- name: "Chnaging Iptables values to 1"
+  shell: |
+   cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+   net.bridge.bridge-nf-call-ip6tables = 1
+   net.bridge.bridge-nf-call-iptables  = 1
+   net.ipv4.ip_forward                 = 1
+   EOF
+  ignore_errors: yes
+
+- name: "Running sysctl --system"
+  shell: "sysctl --system"
+  register: sysctl
+- debug:
+     var: sysctl.stdout_lines
+
+- name: "Changing group drivers"
+  shell: |
+   cat >>/etc/crio/crio.conf.d/02-cgroup-manager.conf<<EOF
+   [crio.runtime]
+   conmon_cgroup = "pod"
+   cgroup_manager = "cgroupfs"
+   EOF
+
+- name: "Pulling Images using KubeAdm"
+  shell: "kubeadm config  images pull"
+  changed_when: false
+  register: kubeadm
+- debug:
+    var: kubeadm.stdout_lines
+
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"
+  ignore_errors: yes
+
+- name: "enabling crio"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes
+
+- name: "Restarting CRIO"
+  shell: "systemctl restart crio"
+  ignore_errors: yes
+
+- name: "Changing Fstab and disable ufw"
+  shell: |
+     sed -i '/swap/d' /etc/fstab
+     swapoff -a
+     systemctl disable --now ufw
+  ignore_errors: yes
+- name: "restarting kubelet"
+  shell: "systemctl restart kubelet"
+
+- name: "Joining Slaves to Master Node"
+  shell: "{{ master_token  }}"
+  ignore_errors: yes
+  register: init
+- debug:
+    var: init.stdout_lines
+
+[root@Ansible_Controller_Node roles]#
+[root@Ansible_Controller_Node roles]# cat  kubernetes_master_conf/tasks/main.yml
+- name: "Copying Script to K8S Master Node"
+  copy:
+     src: "/root/crio.sh"
+     dest: "/root/"
+- name: "running script"
+  shell: "bash /root/crio.sh"
+  register: crioscript
+- debug:
+    var: crioscript.stdout_lines
+
+- name: "Updating apt"
+  shell: "apt update"
+  ignore_errors: yes
+  register: yumupdate
+- debug:
+    var: yumupdate.stdout_lines
+
+- name: "Instlling CRIO"
+  shell: "apt install -qq -y cri-o cri-o-runc cri-tools"
+  ignore_errors: yes
+  register: crioinstall
+
+- debug:
+   var: crioinstall.stdout_lines
+
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"
+
+- name: "enabling CRIO"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes
+  register: criostart
+- debug:
+   var: criostart.stdout_lines
+
+- name: "Installing KubeAdm"
+  shell: |
+   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+   apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+   apt install -qq -y kubeadm=1.20.5-00 kubelet=1.20.5-00 kubectl=1.20.5-00
+  ignore_errors: yes
+  register: kubeadminstall
+- debug:
+   var: kubeadminstall.stdout_lines
+
+- name: "Adding Overlay Network"
+  shell: |
+   cat >>/etc/modules-load.d/crio.conf<<EOF
+   overlay
+   br_netfilter
+   EOF
+  ignore_errors: yes
+  register: overlay
+
+- name: "Creating Overlay and Netfilter"
+  shell: "modprobe overlay"
+- shell: "modprobe br_netfilter"
+  ignore_errors: yes
+
+- name: "Chnaging Iptables values to 1"
+  shell: |
+   cat >>/etc/sysctl.d/kubernetes.conf<<EOF
+   net.bridge.bridge-nf-call-ip6tables = 1
+   net.bridge.bridge-nf-call-iptables  = 1
+   net.ipv4.ip_forward                 = 1
+   EOF
+  ignore_errors: yes
+
+- name: "Running sysctl --system"
+  shell: "sysctl --system"
+  register: sysctl
+- debug:
+     var: sysctl.stdout_lines
+
+- name: "Chnaging group drivers"
+  shell: |
+   cat >>/etc/crio/crio.conf.d/02-cgroup-manager.conf<<EOF
+   [crio.runtime]
+   conmon_cgroup = "pod"
+   cgroup_manager = "cgroupfs"
+   EOF
+
+- name: "Reloading System and CRIO"
+  shell: "systemctl daemon-reload"
+  ignore_errors: yes
+
+- name: "enabling crio"
+  shell: "systemctl enable --now crio"
+  ignore_errors: yes
+
+- name: "Restarting CRIO"
+  shell: "systemctl restart crio"
+  ignore_errors: yes
+
+- name: "Changing Fstab and disable ufw"
+  shell: |
+     sed -i '/swap/d' /etc/fstab
+     swapoff -a
+     systemctl disable --now ufw
+  ignore_errors: yes
+- name: "restarting kubelet"
+  shell: "systemctl restart kubelet"
+
+- name: "Initilaizing Master"
+  shell: "kubeadm init --apiserver-advertise-address=192.168.1.118  --pod-network-cidr=192.168.0.0/16    --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem"
+  ignore_errors: yes
+  register: master
+- debug:
+   var: master.stdout_lines
+
+- name: "Creating .kube directory"
+  shell: "mkdir -p $HOME/.kube"
+
+- name: "Copying /etc/kubernetes/admin.conf $HOME/.kube/config"
+  shell: "sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config"
+
+- name: "changing owner permission"
+  shell: "sudo chown $(id -u):$(id -g) $HOME/.kube/config"
+
+- name: "Using Calico as Overlay Network"
+  shell: "kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml"
+  ignore_errors: yes
+  register: callico
+- debug:
+    var: callico.stdout_lines
+
+- name: "Printing token"
+  shell: "kubeadm token create --print-join-command"
+  register: token
+
+- debug:
+    var: token.stdout_lines
